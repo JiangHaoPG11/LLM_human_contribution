@@ -127,12 +127,10 @@ def init_data(args):
 
     else:
         trainData, testData, trainDataNums, testDataNums = split_train_test_data(inputData)
-
         trainDataset = BaseDataset(trainData, tokenizer,  max_length=args.max_length)
         testDataset = BaseDataset(testData, tokenizer,  max_length=args.max_length)
         trainDataloader = DataLoader(trainDataset, batch_size=args.batch_size, shuffle=True)
         testDataloader = DataLoader(testDataset, batch_size=args.batch_size, shuffle=False)
-
         return tokenizer, trainDataloader, testDataloader, trainDataNums, testDataNums
 
 if __name__ == '__main__':

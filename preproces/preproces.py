@@ -103,7 +103,7 @@ def Hprompt_generation(news_info_df):
     return HpromptList
 
 def extraction_polish_news_abstract(Hprompt, args):
-    promptSelect = Hprompt[100:args.data_num]
+    promptSelect = Hprompt[1000:args.data_num]
     PolishedTextList = []
     count = 0
     try: 
@@ -119,11 +119,11 @@ def extraction_polish_news_abstract(Hprompt, args):
         print('The server is overloaded or not ready yet')
     PolishedTextPd = pd.DataFrame()
     PolishedTextPd['PolishedText'] = PolishedTextList
-    PolishedTextPd.to_csv('../data_generation/PolishedText_500.csv')
+    PolishedTextPd.to_csv('../data_generation/PolishedText_1000.csv')
     return PolishedTextList
 
 def extraction_origin_news_abstract(GPrompt, args):
-    promptSelect = GPrompt[100:args.data_num]
+    promptSelect = GPrompt[1000:args.data_num]
     GenetatedTextList = []
     count = 0
     try: 
@@ -139,12 +139,54 @@ def extraction_origin_news_abstract(GPrompt, args):
         print('The server is overloaded or not ready yet')
     GenetatedTextPd = pd.DataFrame()
     GenetatedTextPd['GenetatedText'] = GenetatedTextList
-    GenetatedTextPd.to_csv('../data_generation/GenetatedText_500.csv')
+    GenetatedTextPd.to_csv('../data_generation/GenetatedText_1000.csv')
     return GenetatedTextPd
+
+
+def extraction_news_abstract(GPrompt, Hprompt, args):
+    GpromptSelect = GPrompt[1000:1000+args.data_num]
+    HpromptSelect = Hprompt[1000:1000+args.data_num]
+
+    GenetatedTextList = []
+    PolishedTextList = []
+
+    count = 0
+    try: 
+        for i in range(len(GpromptSelect)):
+            query = GpromptSelect[i]
+            print(count)
+            print(query)
+            GenetatedText = acquire(query)
+            GenetatedTextList.append(GenetatedText)
+            print('-----')
+            print(GenetatedText)
+            print('=====')
+            query = HpromptSelect[i]
+
+            print(count)
+            print(query)
+            PolishedText = acquire(query)
+            PolishedTextList.append(PolishedText)
+            print('-----')
+            print(PolishedText)
+            print('=====')
+            count += 1
+    except:
+        print('The server is overloaded or not ready yet')
+    GenetatedTextPd = pd.DataFrame()
+    GenetatedTextPd['GenetatedText'] = GenetatedTextList
+    GenetatedTextPd.to_csv('../data_generation/GenetatedText_1000.csv')
+
+    PolishedTextPd = pd.DataFrame()
+    PolishedTextPd['PolishedText'] = PolishedTextList
+    PolishedTextPd.to_csv('../data_generation/PolishedText_1000.csv')
+    return PolishedTextList, GenetatedTextList
 
 if __name__ == '__main__':
     news_Info_df = load_mind_news()
     GpromptList = Gprompt_generation(news_Info_df)
     HpromptList = Hprompt_generation(news_Info_df)
-    GenetatedTextList = extraction_origin_news_abstract(GpromptList, args)
-    PolishedTextList = extraction_polish_news_abstract(HpromptList, args)
+    # GenetatedTextList = extraction_origin_news_abstract(GpromptList, args)
+    # PolishedTextList = extraction_polish_news_abstract(HpromptList, args)
+
+    PolishedTextList, GenetatedTextList = extraction_news_abstract(GpromptList, HpromptList, args)
